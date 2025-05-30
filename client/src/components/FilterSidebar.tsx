@@ -80,13 +80,13 @@ export const FilterSidebar = ({ filters, onFiltersChange, onApplyFilters }: Filt
             </Label>
             <Select
               value={filters.distanceMax?.toString() || ""}
-              onValueChange={(value) => updateFilter("distanceMax", value ? Number(value) : undefined)}
+              onValueChange={(value) => updateFilter("distanceMax", value === "any" ? undefined : Number(value))}
             >
               <SelectTrigger className="focus:ring-nd-blue focus:border-nd-blue">
                 <SelectValue placeholder="Any distance" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any distance</SelectItem>
+                <SelectItem value="any">Any distance</SelectItem>
                 <SelectItem value="0.5">Within 0.5 miles</SelectItem>
                 <SelectItem value="1">Within 1 mile</SelectItem>
                 <SelectItem value="2">Within 2 miles</SelectItem>
@@ -102,14 +102,14 @@ export const FilterSidebar = ({ filters, onFiltersChange, onApplyFilters }: Filt
                 🛏️ Bedrooms
               </Label>
               <Select
-                value={filters.bedrooms?.toString() || ""}
-                onValueChange={(value) => updateFilter("bedrooms", value ? Number(value) : undefined)}
+                value={filters.bedrooms?.toString() || "any"}
+                onValueChange={(value) => updateFilter("bedrooms", value === "any" ? undefined : Number(value))}
               >
                 <SelectTrigger className="focus:ring-nd-blue focus:border-nd-blue">
                   <SelectValue placeholder="Any" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any</SelectItem>
+                  <SelectItem value="any">Any</SelectItem>
                   <SelectItem value="1">1+</SelectItem>
                   <SelectItem value="2">2+</SelectItem>
                   <SelectItem value="3">3+</SelectItem>
@@ -122,14 +122,14 @@ export const FilterSidebar = ({ filters, onFiltersChange, onApplyFilters }: Filt
                 🛁 Bathrooms
               </Label>
               <Select
-                value={filters.bathrooms?.toString() || ""}
-                onValueChange={(value) => updateFilter("bathrooms", value ? Number(value) : undefined)}
+                value={filters.bathrooms?.toString() || "any"}
+                onValueChange={(value) => updateFilter("bathrooms", value === "any" ? undefined : Number(value))}
               >
                 <SelectTrigger className="focus:ring-nd-blue focus:border-nd-blue">
                   <SelectValue placeholder="Any" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any</SelectItem>
+                  <SelectItem value="any">Any</SelectItem>
                   <SelectItem value="1">1+</SelectItem>
                   <SelectItem value="2">2+</SelectItem>
                   <SelectItem value="3">3+</SelectItem>
