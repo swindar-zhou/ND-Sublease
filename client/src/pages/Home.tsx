@@ -9,8 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { getListings } from "@/lib/firestore";
-import { demoListings } from "@/lib/demoData";
+import { getQueryFn } from "@/lib/queryClient";
 import { Search, Plus, Grid, Map } from "lucide-react";
 import type { Listing, ListingFilters } from "@shared/schema";
 
@@ -31,15 +30,7 @@ export const Home = () => {
     refetch,
   } = useQuery({
     queryKey: ["/api/listings", filters],
-    queryFn: async () => {
-      try {
-        return await getListings(filters);
-      } catch (error) {
-        // If Firebase is not configured, use demo data
-        console.log("Using demo data - Firebase not configured");
-        return demoListings;
-      }
-    },
+    queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
   // Filter and sort listings
