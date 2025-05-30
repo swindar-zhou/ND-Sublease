@@ -1,0 +1,52 @@
+Build a responsive sublease listing web app for Notre Dame students using React with the following features:
+
+1. Layout & Navigation:
+	•	Standard homepage with a top navigation bar (login, sign up, home).
+	•	Left-side filter panel.
+	•	Right-side map using Google Maps API to show property pins by user-submitted location (latitude/longitude).
+	•	A scrollable list of listing cards below or beside the map, depending on screen size.
+
+2. Listing Card Display:
+	•	Each card displays:
+	•	Cover image (require at least one image on submission).
+	•	Price per month (e.g., $1200/month).
+	•	Bedrooms and bathrooms with emojis (e.g., 🛏️ 3BR · 🛁 2BA).
+	•	Address + distance to campus (e.g., 789 Eddy Street · 0.8 miles from campus).
+	•	Availability window (e.g., Available March–August 2025).
+	•	Amenities tags (e.g., WiFi, Parking, AC, Laundry).
+
+3. Filters:
+	•	Sidebar filter for:
+	•	Price range
+	•	Distance to campus
+	•	Furnished (yes/no)
+	•	Bedrooms / Bathrooms
+	•	Amenities (checkbox: WiFi, Parking, AC, Laundry, Dishwasher, etc.)
+
+4. Authentication:
+	•	Use Firebase Auth.
+	•	Only allow users with @nd.edu emails to register, log in, and post.
+	•	Display listings to the public, but restrict listing uploads/edits to signed-in ND students.
+
+5. Posting a Listing:
+	•	Allow authenticated users to:
+	•	Upload cover image and optional extra photos
+	•	Enter listing info (title, price, address, dates available, contact email/phone)
+	•	Choose amenities and enter property description
+	•	Mark listing as “No longer available”
+	•	Store data in Firebase Firestore.
+
+6. Listing Detail Modal:
+	•	When a user clicks a card, open a modal or panel view with:
+	•	Larger image
+	•	Full details
+	•	Contact section (email, phone)
+	•	Contact form (name, email, message input with “Send Message” button)
+
+7. Design Notes:
+	•	Use TailwindCSS or similar for styling.
+	•	Include emojis for visual clarity (🛏️, 🛁, 🧺, 🛜, 🚗).
+	•	Responsive design: for mobile, display map and listings stacked.
+	•	Optional: add email trigger (EmailJS or Firebase Functions) for contact form.
+
+Use React for the frontend, Firebase for auth + database, and Google Maps JavaScript API for geographic view. The goal is to make the platform searchable, ND-student exclusive for posting, and intuitive for users looking for subleases.
