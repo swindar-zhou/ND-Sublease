@@ -79,7 +79,7 @@ export const FilterSidebar = ({ filters, onFiltersChange, onApplyFilters }: Filt
               Distance to Campus
             </Label>
             <Select
-              value={filters.distanceMax?.toString() || ""}
+              value={filters.distanceMax?.toString() || "any"}
               onValueChange={(value) => updateFilter("distanceMax", value === "any" ? undefined : Number(value))}
             >
               <SelectTrigger className="focus:ring-nd-blue focus:border-nd-blue">
