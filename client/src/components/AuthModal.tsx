@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { signIn, signUp } from "@/lib/auth";
-import { createUser } from "@/lib/firestore";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AuthModalProps {
   open: boolean;
@@ -23,6 +23,7 @@ export const AuthModal = ({ open, onOpenChange, mode, onModeChange }: AuthModalP
     name: "",
   });
   const { toast } = useToast();
+  const { setUser } = useAuth();
 
   const updateField = <K extends keyof typeof formData>(
     field: K, 
@@ -81,20 +82,24 @@ export const AuthModal = ({ open, onOpenChange, mode, onModeChange }: AuthModalP
 
     try {
       if (mode === "signin") {
-        await signIn(formData.email, formData.password);
+        const response = await signIn(formData.email, formData.password);
+        
+        // Store user data and token
+        localStorage.setItem("auth_token", response.token);
+        localStorage.setItem("current_user", JSON.stringify(response.user));
+        setUser(response.user);
+        
         toast({
           title: "Welcome back!",
           description: "You have successfully signed in.",
         });
       } else {
-        const userCredential = await signUp(formData.email, formData.password);
+        const response = await signUp(formData.email, formData.password, formData.name);
         
-        // Create user profile in Firestore
-        await createUser({
-          uid: userCredential.user.uid,
-          email: formData.email,
-          name: formData.name,
-        });
+        // Store user data and token
+        localStorage.setItem("auth_token", response.token);
+        localStorage.setItem("current_user", JSON.stringify(response.user));
+        setUser(response.user);
 
         toast({
           title: "Account created!",

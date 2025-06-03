@@ -1,14 +1,19 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { isNDStudent } from "@/lib/auth";
+import { getCurrentUser, isNDStudent } from "@/lib/auth";
+
+interface User {
+  id: number;
+  email: string;
+  name: string;
+  uid: string;
+}
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
   isNDStudent: boolean;
+  setUser: (user: User | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,12 +31,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return unsubscribe;
+    // Check for existing user on page load
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
+    setLoading(false);
   }, []);
 
   const value = {
@@ -39,6 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loading,
     isAuthenticated: !!user,
     isNDStudent: isNDStudent(user),
+    setUser,
   };
 
   return (
