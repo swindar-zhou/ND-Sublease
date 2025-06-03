@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { users, listings, type User, type InsertUser, type Listing, type InsertListing } from "@shared/schema";
+import { users, listings, favorites, type User, type InsertUser, type Listing, type InsertListing, type Favorite, type InsertFavorite } from "@shared/schema";
 import { eq, desc, and, gte, lte } from "drizzle-orm";
 
 const connectionString = process.env.DATABASE_URL!;
@@ -27,6 +27,12 @@ export interface IStorage {
   createListing(listing: InsertListing): Promise<Listing & { id: number }>;
   updateListing(id: number, updates: Partial<InsertListing>): Promise<void>;
   deleteListing(id: number): Promise<void>;
+  
+  // Favorites methods
+  addFavorite(userId: number, listingId: number): Promise<void>;
+  removeFavorite(userId: number, listingId: number): Promise<void>;
+  getUserFavorites(userId: number): Promise<(Listing & { id: number })[]>;
+  isFavorited(userId: number, listingId: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -130,6 +136,38 @@ export class DatabaseStorage implements IStorage {
 
   async deleteListing(id: number): Promise<void> {
     await db.delete(listings).where(eq(listings.id, id));
+  }
+
+  // Favorites methods
+  async addFavorite(userId: number, listingId: number): Promise<void> {
+    await db.insert(favorites).values({ userId, listingId });
+  }
+
+  async removeFavorite(userId: number, listingId: number): Promise<void> {
+    await db.delete(favorites).where(
+      and(eq(favorites.userId, userId), eq(favorites.listingId, listingId))
+    );
+  }
+
+  async getUserFavorites(userId: number): Promise<(Listing & { id: number })[]> {
+    const result = await db
+      .select()
+      .from(listings)
+      .innerJoin(favorites, eq(listings.id, favorites.listingId))
+      .where(eq(favorites.userId, userId))
+      .orderBy(desc(favorites.createdAt));
+    
+    return result.map(row => ({ ...row.listings, id: row.listings.id }));
+  }
+
+  async isFavorited(userId: number, listingId: number): Promise<boolean> {
+    const result = await db
+      .select()
+      .from(favorites)
+      .where(and(eq(favorites.userId, userId), eq(favorites.listingId, listingId)))
+      .limit(1);
+    
+    return result.length > 0;
   }
 }
 

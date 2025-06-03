@@ -166,6 +166,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Favorites routes
+  app.post("/api/favorites", authenticateToken, async (req: any, res) => {
+    try {
+      const { listingId } = req.body;
+      await storage.addFavorite(req.user.userId, parseInt(listingId));
+      res.status(201).json({ message: "Listing added to favorites" });
+    } catch (error) {
+      console.error(`Error adding favorite: ${error}`);
+      res.status(500).json({ error: "Failed to add favorite" });
+    }
+  });
+
+  app.delete("/api/favorites/:listingId", authenticateToken, async (req: any, res) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      await storage.removeFavorite(req.user.userId, listingId);
+      res.status(204).send();
+    } catch (error) {
+      console.error(`Error removing favorite: ${error}`);
+      res.status(500).json({ error: "Failed to remove favorite" });
+    }
+  });
+
+  app.get("/api/favorites", authenticateToken, async (req: any, res) => {
+    try {
+      const favorites = await storage.getUserFavorites(req.user.userId);
+      res.json(favorites);
+    } catch (error) {
+      console.error(`Error fetching favorites: ${error}`);
+      res.status(500).json({ error: "Failed to fetch favorites" });
+    }
+  });
+
+  app.get("/api/favorites/:listingId/check", authenticateToken, async (req: any, res) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const isFavorited = await storage.isFavorited(req.user.userId, listingId);
+      res.json({ isFavorited });
+    } catch (error) {
+      console.error(`Error checking favorite: ${error}`);
+      res.status(500).json({ error: "Failed to check favorite" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

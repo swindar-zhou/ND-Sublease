@@ -98,12 +98,55 @@ export const Home = () => {
     setSelectedListing(listing);
   };
 
-  const handleSaveListing = (listingId: string) => {
-    // In a real implementation, this would save to user's favorites
-    toast({
-      title: "Listing saved!",
-      description: "This listing has been added to your favorites.",
-    });
+  const [savedListings, setSavedListings] = useState<Set<string>>(new Set());
+
+  const handleSaveListing = async (listingId: string) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to save listings.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const isSaved = savedListings.has(listingId);
+      
+      if (isSaved) {
+        // Remove from favorites
+        await apiRequest(`/api/favorites/${listingId}`, {
+          method: "DELETE",
+        });
+        setSavedListings(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(listingId);
+          return newSet;
+        });
+        toast({
+          title: "Listing removed",
+          description: "This listing has been removed from your favorites.",
+        });
+      } else {
+        // Add to favorites
+        await apiRequest("/api/favorites", {
+          method: "POST",
+          body: JSON.stringify({ listingId }),
+        });
+        setSavedListings(prev => new Set([...prev, listingId]));
+        toast({
+          title: "Listing saved!",
+          description: "This listing has been added to your favorites.",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving listing:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save listing. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (error) {
