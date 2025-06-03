@@ -2,6 +2,15 @@ import { storage } from "./storage";
 import type { InsertListing } from "@shared/schema";
 
 export async function seedDatabase() {
+  console.log("Checking database for existing listings...");
+  
+  // Check if listings already exist
+  const existingListings = await storage.getListings();
+  if (existingListings.length > 0) {
+    console.log(`Database already contains ${existingListings.length} listings. Skipping seed.`);
+    return;
+  }
+  
   console.log("Seeding database with sample listings...");
   
   const sampleListings: InsertListing[] = [
