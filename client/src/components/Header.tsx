@@ -12,6 +12,7 @@ export const Header = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [createListingOpen, setCreateListingOpen] = useState(false);
+  const [messagingOpen, setMessagingOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -103,6 +104,17 @@ export const Header = () => {
           <div className="md:hidden border-t border-gray-200 bg-white">
             <div className="px-4 py-2 space-y-2">
               <a href="#" className="block py-2 text-gray-900 font-medium">Browse</a>
+              {isAuthenticated && (
+                <button 
+                  onClick={() => {
+                    setMessagingOpen(true);
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block py-2 text-gray-500 w-full text-left"
+                >
+                  Messages
+                </button>
+              )}
               {isAuthenticated && isNDStudent && (
                 <button 
                   onClick={() => {
@@ -142,6 +154,11 @@ export const Header = () => {
       <CreateListingModal
         open={createListingOpen}
         onOpenChange={setCreateListingOpen}
+      />
+
+      <MessagingModal
+        open={messagingOpen}
+        onOpenChange={setMessagingOpen}
       />
     </>
   );

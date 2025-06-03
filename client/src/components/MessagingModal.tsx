@@ -67,12 +67,13 @@ export const MessagingModal = ({
   // Create conversation mutation
   const createConversationMutation = useMutation({
     mutationFn: async (data: { otherUserId: number; listingId?: number }) => {
-      return apiRequest("/api/conversations", {
+      const response = await apiRequest("/api/conversations", {
         method: "POST",
         body: JSON.stringify(data),
       });
+      return response;
     },
-    onSuccess: (conversation) => {
+    onSuccess: (conversation: any) => {
       setSelectedConversationId(conversation.id);
       queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
     },
