@@ -4,7 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { signOut } from "@/lib/auth";
 import { AuthModal } from "./AuthModal";
 import { CreateListingModal } from "./CreateListingModal";
-import { Menu, X } from "lucide-react";
+import { MessagingModal } from "./MessagingModal";
+import { Menu, X, MessageCircle, Plus } from "lucide-react";
 
 export const Header = () => {
   const { user, isAuthenticated, isNDStudent } = useAuth();

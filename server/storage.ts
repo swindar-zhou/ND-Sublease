@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { users, listings, favorites, conversations, messages, type User, type InsertUser, type Listing, type InsertListing, type Favorite, type InsertFavorite, type Conversation, type InsertConversation, type Message, type InsertMessage } from "@shared/schema";
-import { eq, desc, and, gte, lte } from "drizzle-orm";
+import { eq, desc, and, gte, lte, or } from "drizzle-orm";
 
 const connectionString = process.env.DATABASE_URL!;
 const client = postgres(connectionString);
@@ -176,6 +176,120 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
     
     return result.length > 0;
+  }
+
+  // Messaging methods
+  async createConversation(user1Id: number, user2Id: number, listingId?: number): Promise<Conversation & { id: number }> {
+    const insertData: InsertConversation = {
+      user1Id: Math.min(user1Id, user2Id), // Always put smaller ID first for consistency
+      user2Id: Math.max(user1Id, user2Id),
+      listingId: listingId || null,
+    };
+
+    const result = await db.insert(conversations).values(insertData).returning();
+    return { ...result[0], id: result[0].id };
+  }
+
+  async getConversation(user1Id: number, user2Id: number, listingId?: number): Promise<(Conversation & { id: number }) | undefined> {
+    const minId = Math.min(user1Id, user2Id);
+    const maxId = Math.max(user1Id, user2Id);
+    
+    let whereConditions = and(eq(conversations.user1Id, minId), eq(conversations.user2Id, maxId));
+
+    if (listingId) {
+      whereConditions = and(whereConditions, eq(conversations.listingId, listingId));
+    }
+
+    const result = await db
+      .select()
+      .from(conversations)
+      .where(whereConditions)
+      .limit(1);
+      
+    return result[0] ? { ...result[0], id: result[0].id } : undefined;
+  }
+
+  async getUserConversations(userId: number): Promise<(Conversation & { id: number; otherUser: User; listing?: Listing; lastMessage?: Message })[]> {
+    const result = await db
+      .select({
+        conversation: conversations,
+        otherUser: users,
+        listing: listings,
+        lastMessage: messages,
+      })
+      .from(conversations)
+      .leftJoin(users, 
+        or(
+          and(eq(conversations.user1Id, userId), eq(users.id, conversations.user2Id)),
+          and(eq(conversations.user2Id, userId), eq(users.id, conversations.user1Id))
+        )
+      )
+      .leftJoin(listings, eq(conversations.listingId, listings.id))
+      .leftJoin(messages, eq(messages.conversationId, conversations.id))
+      .where(or(eq(conversations.user1Id, userId), eq(conversations.user2Id, userId)))
+      .orderBy(desc(conversations.updatedAt));
+
+    const conversationsMap = new Map();
+    
+    for (const row of result) {
+      const conv = row.conversation;
+      if (!conversationsMap.has(conv.id)) {
+        conversationsMap.set(conv.id, {
+          ...conv,
+          id: conv.id,
+          otherUser: row.otherUser!,
+          listing: row.listing || undefined,
+          lastMessage: row.lastMessage || undefined,
+        });
+      } else if (row.lastMessage && 
+                 (!conversationsMap.get(conv.id).lastMessage || 
+                  row.lastMessage.createdAt > conversationsMap.get(conv.id).lastMessage.createdAt)) {
+        conversationsMap.get(conv.id).lastMessage = row.lastMessage;
+      }
+    }
+
+    return Array.from(conversationsMap.values());
+  }
+
+  async sendMessage(conversationId: number, senderId: number, content: string): Promise<Message & { id: number }> {
+    const insertData: InsertMessage = {
+      conversationId,
+      senderId,
+      content,
+    };
+
+    const result = await db.insert(messages).values(insertData).returning();
+    
+    // Update conversation timestamp
+    await db.update(conversations)
+      .set({ updatedAt: new Date() })
+      .where(eq(conversations.id, conversationId));
+
+    return { ...result[0], id: result[0].id };
+  }
+
+  async getMessages(conversationId: number, userId: number): Promise<(Message & { id: number; sender: User })[]> {
+    const result = await db
+      .select({
+        message: messages,
+        sender: users,
+      })
+      .from(messages)
+      .innerJoin(users, eq(messages.senderId, users.id))
+      .where(eq(messages.conversationId, conversationId))
+      .orderBy(messages.createdAt);
+
+    return result.map(row => ({
+      ...row.message,
+      id: row.message.id,
+      sender: row.sender,
+    }));
+  }
+
+  async markMessageAsRead(messageId: number, userId: number): Promise<void> {
+    await db.update(messages)
+      .set({ readAt: new Date() })
+      .where(and(eq(messages.id, messageId), eq(messages.senderId, userId)));
   }
 }
 

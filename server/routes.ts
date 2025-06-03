@@ -210,6 +210,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Messaging routes
+  app.get("/api/conversations", authenticateToken, async (req: any, res) => {
+    try {
+      const conversations = await storage.getUserConversations(req.user.userId);
+      res.json(conversations);
+    } catch (error) {
+      console.error(`Error fetching conversations: ${error}`);
+      res.status(500).json({ error: "Failed to fetch conversations" });
+    }
+  });
+
+  app.post("/api/conversations", authenticateToken, async (req: any, res) => {
+    try {
+      const { otherUserId, listingId } = req.body;
+      
+      // Check if conversation already exists
+      let conversation = await storage.getConversation(req.user.userId, otherUserId, listingId);
+      
+      if (!conversation) {
+        conversation = await storage.createConversation(req.user.userId, otherUserId, listingId);
+      }
+      
+      res.json(conversation);
+    } catch (error) {
+      console.error(`Error creating conversation: ${error}`);
+      res.status(500).json({ error: "Failed to create conversation" });
+    }
+  });
+
+  app.get("/api/conversations/:id/messages", authenticateToken, async (req: any, res) => {
+    try {
+      const conversationId = parseInt(req.params.id);
+      const messages = await storage.getMessages(conversationId, req.user.userId);
+      res.json(messages);
+    } catch (error) {
+      console.error(`Error fetching messages: ${error}`);
+      res.status(500).json({ error: "Failed to fetch messages" });
+    }
+  });
+
+  app.post("/api/conversations/:id/messages", authenticateToken, async (req: any, res) => {
+    try {
+      const conversationId = parseInt(req.params.id);
+      const { content } = req.body;
+      
+      const message = await storage.sendMessage(conversationId, req.user.userId, content);
+      res.status(201).json(message);
+    } catch (error) {
+      console.error(`Error sending message: ${error}`);
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  });
+
+  app.patch("/api/messages/:id/read", authenticateToken, async (req: any, res) => {
+    try {
+      const messageId = parseInt(req.params.id);
+      await storage.markMessageAsRead(messageId, req.user.userId);
+      res.status(204).send();
+    } catch (error) {
+      console.error(`Error marking message as read: ${error}`);
+      res.status(500).json({ error: "Failed to mark message as read" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

@@ -8,6 +8,7 @@ interface ListingCardProps {
   listing: Listing & { id: string };
   onCardClick: (listing: Listing & { id: string }) => void;
   onSave?: (listingId: string) => void;
+  onMessage?: (listing: Listing & { id: string }) => void;
   saved?: boolean;
 }
 
