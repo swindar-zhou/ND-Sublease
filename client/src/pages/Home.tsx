@@ -9,17 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { getQueryFn } from "@/lib/queryClient";
+import { getQueryFn, apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/contexts/AuthContext";
 import { Search, Plus, Grid, Map } from "lucide-react";
 import type { Listing, ListingFilters } from "@shared/schema";
 
 export const Home = () => {
+  const { isAuthenticated } = useAuth();
   const [filters, setFilters] = useState<ListingFilters>({
     amenities: [],
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
-  const [selectedListing, setSelectedListing] = useState<(Listing & { id: string }) | null>(null);
+  const [selectedListing, setSelectedListing] = useState<(Listing & { id: number }) | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
   const { toast } = useToast();
 
@@ -60,10 +62,25 @@ export const Home = () => {
     isLoading,
     error,
     refetch,
-  } = useQuery({
+  } = useQuery<(Listing & { id: number })[]>({
     queryKey: [apiUrl],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
+
+  // Fetch user's favorites if authenticated
+  const { data: favorites } = useQuery<(Listing & { id: number })[]>({
+    queryKey: ["/api/favorites"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+    enabled: isAuthenticated,
+  });
+
+  // Update saved listings when favorites data changes
+  useEffect(() => {
+    if (favorites && Array.isArray(favorites)) {
+      const favoriteIds = new Set(favorites.map(listing => listing.id.toString()));
+      setSavedListings(favoriteIds);
+    }
+  }, [favorites]);
 
   // Filter and sort listings
   const filteredListings = listings
@@ -94,7 +111,7 @@ export const Home = () => {
     refetch();
   };
 
-  const handleListingClick = (listing: Listing & { id: string }) => {
+  const handleListingClick = (listing: Listing & { id: number }) => {
     setSelectedListing(listing);
   };
 
@@ -133,7 +150,7 @@ export const Home = () => {
           method: "POST",
           body: JSON.stringify({ listingId }),
         });
-        setSavedListings(prev => new Set([...prev, listingId]));
+        setSavedListings(prev => new Set(Array.from(prev).concat([listingId])));
         toast({
           title: "Listing saved!",
           description: "This listing has been added to your favorites.",
