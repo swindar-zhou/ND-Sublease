@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { users, listings, favorites, type User, type InsertUser, type Listing, type InsertListing, type Favorite, type InsertFavorite } from "@shared/schema";
+import { users, listings, favorites, conversations, messages, type User, type InsertUser, type Listing, type InsertListing, type Favorite, type InsertFavorite, type Conversation, type InsertConversation, type Message, type InsertMessage } from "@shared/schema";
 import { eq, desc, and, gte, lte } from "drizzle-orm";
 
 const connectionString = process.env.DATABASE_URL!;
@@ -33,6 +33,14 @@ export interface IStorage {
   removeFavorite(userId: number, listingId: number): Promise<void>;
   getUserFavorites(userId: number): Promise<(Listing & { id: number })[]>;
   isFavorited(userId: number, listingId: number): Promise<boolean>;
+  
+  // Messaging methods
+  createConversation(user1Id: number, user2Id: number, listingId?: number): Promise<Conversation & { id: number }>;
+  getConversation(user1Id: number, user2Id: number, listingId?: number): Promise<(Conversation & { id: number }) | undefined>;
+  getUserConversations(userId: number): Promise<(Conversation & { id: number; otherUser: User; listing?: Listing; lastMessage?: Message })[]>;
+  sendMessage(conversationId: number, senderId: number, content: string): Promise<Message & { id: number }>;
+  getMessages(conversationId: number, userId: number): Promise<(Message & { id: number; sender: User })[]>;
+  markMessageAsRead(messageId: number, userId: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
