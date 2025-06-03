@@ -1,9 +1,81 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertListingSchema, listingFiltersSchema } from "@shared/schema";
+import { insertListingSchema, listingFiltersSchema, insertUserSchema } from "@shared/schema";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Authentication routes
+  app.post("/api/auth/signup", async (req, res) => {
+    try {
+      const { email, password, name } = req.body;
+      
+      // Validate @nd.edu email
+      if (!email.endsWith("@nd.edu")) {
+        return res.status(400).json({ error: "Only Notre Dame email addresses are allowed" });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ error: "User already exists" });
+      }
+      
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // Create user
+      const user = await storage.createUser({
+        uid: `nd_${Date.now()}`,
+        email,
+        name,
+        passwordHash: hashedPassword
+      });
+      
+      // Generate JWT token
+      const token = jwt.sign({ userId: user.id, email }, JWT_SECRET, { expiresIn: "7d" });
+      
+      res.status(201).json({ user, token });
+    } catch (error) {
+      console.error("Signup error:", error);
+      res.status(500).json({ error: "Failed to create account" });
+    }
+  });
+
+  app.post("/api/auth/signin", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      // Validate @nd.edu email
+      if (!email.endsWith("@nd.edu")) {
+        return res.status(400).json({ error: "Only Notre Dame email addresses are allowed" });
+      }
+      
+      // Find user
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(400).json({ error: "Invalid credentials" });
+      }
+      
+      // Verify password
+      const validPassword = await bcrypt.compare(password, user.passwordHash);
+      if (!validPassword) {
+        return res.status(400).json({ error: "Invalid credentials" });
+      }
+      
+      // Generate JWT token
+      const token = jwt.sign({ userId: user.id, email }, JWT_SECRET, { expiresIn: "7d" });
+      
+      res.json({ user, token });
+    } catch (error) {
+      console.error("Signin error:", error);
+      res.status(500).json({ error: "Failed to sign in" });
+    }
+  });
+
   // API routes for listings
   app.get("/api/listings", async (req, res) => {
     try {

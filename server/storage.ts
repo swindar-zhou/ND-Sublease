@@ -65,6 +65,14 @@ export class DatabaseStorage implements IStorage {
         conditions.push(gte(listings.bedrooms, filters.bedrooms));
       }
       
+      if (filters.priceMin) {
+        conditions.push(gte(listings.price, filters.priceMin.toString()));
+      }
+      
+      if (filters.priceMax) {
+        conditions.push(lte(listings.price, filters.priceMax.toString()));
+      }
+      
       if (filters.bathrooms) {
         conditions.push(gte(listings.bathrooms, filters.bathrooms.toString()));
       }

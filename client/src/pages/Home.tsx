@@ -23,13 +23,45 @@ export const Home = () => {
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
   const { toast } = useToast();
 
+  // Build query string from filters
+  const buildQueryString = (filters: ListingFilters) => {
+    const params = new URLSearchParams();
+    
+    if (filters.priceMin && filters.priceMin > 0) {
+      params.append('priceMin', filters.priceMin.toString());
+    }
+    if (filters.priceMax && filters.priceMax > 0) {
+      params.append('priceMax', filters.priceMax.toString());
+    }
+    if (filters.bedrooms && filters.bedrooms > 0) {
+      params.append('bedrooms', filters.bedrooms.toString());
+    }
+    if (filters.bathrooms && filters.bathrooms > 0) {
+      params.append('bathrooms', filters.bathrooms.toString());
+    }
+    if (filters.distanceMax && filters.distanceMax > 0) {
+      params.append('distanceMax', filters.distanceMax.toString());
+    }
+    if (filters.furnished !== undefined) {
+      params.append('furnished', filters.furnished.toString());
+    }
+    if (filters.amenities && filters.amenities.length > 0) {
+      params.append('amenities', filters.amenities.join(','));
+    }
+    
+    return params.toString() ? `?${params.toString()}` : '';
+  };
+
+  const queryString = buildQueryString(filters);
+  const apiUrl = `/api/listings${queryString}`;
+
   const {
     data: listings = [],
     isLoading,
     error,
     refetch,
   } = useQuery({
-    queryKey: ["/api/listings", filters],
+    queryKey: [apiUrl],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
