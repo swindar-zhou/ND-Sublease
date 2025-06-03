@@ -57,7 +57,7 @@ export const Header = () => {
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
                   <span className="hidden sm:block text-sm text-gray-700">
-                    {user?.email}
+                    {user?.name}
                   </span>
                   <Button
                     variant="outline"
@@ -117,7 +117,7 @@ export const Header = () => {
               {isAuthenticated && (
                 <>
                   <hr className="my-2" />
-                  <div className="py-2 text-sm text-gray-700">{user?.email}</div>
+                  <div className="py-2 text-sm text-gray-700">{user?.name}</div>
                   <button 
                     onClick={handleSignOut}
                     className="block py-2 text-gray-700 w-full text-left"

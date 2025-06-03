@@ -35,6 +35,13 @@ export const listings = pgTable("listings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const favorites = pgTable("favorites", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  listingId: integer("listing_id").notNull().references(() => listings.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
@@ -72,11 +79,18 @@ export const listingFiltersSchema = z.object({
   availableTo: z.string().optional(),
 });
 
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Listing = typeof listings.$inferSelect;
 export type InsertListing = z.infer<typeof insertListingSchema>;
 export type ListingFilters = z.infer<typeof listingFiltersSchema>;
+export type Favorite = typeof favorites.$inferSelect;
+export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 
 export const AMENITIES = [
   "WiFi",
