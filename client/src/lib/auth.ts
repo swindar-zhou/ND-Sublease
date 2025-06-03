@@ -21,8 +21,7 @@ export const signIn = async (email: string, password: string): Promise<AuthRespo
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
-  
-  return response;
+  return response.json();
 };
 
 export const signUp = async (email: string, password: string, name: string): Promise<AuthResponse> => {
@@ -34,8 +33,7 @@ export const signUp = async (email: string, password: string, name: string): Pro
     method: "POST",
     body: JSON.stringify({ email, password, name }),
   });
-  
-  return response;
+  return response.json();
 };
 
 export const signOut = () => {

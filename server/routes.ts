@@ -115,9 +115,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/listings", async (req, res) => {
+  // Authentication middleware
+  const authenticateToken = (req: any, res: any, next: any) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token == null) return res.sendStatus(401);
+
+    jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+      if (err) return res.sendStatus(403);
+      req.user = user;
+      next();
+    });
+  };
+
+  app.post("/api/listings", authenticateToken, async (req: any, res) => {
     try {
-      const validatedData = insertListingSchema.parse(req.body);
+      const validatedData = insertListingSchema.parse({
+        ...req.body,
+        userId: req.user.userId
+      });
       const listing = await storage.createListing(validatedData);
       res.status(201).json(listing);
     } catch (error) {
