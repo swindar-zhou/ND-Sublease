@@ -43,35 +43,33 @@ export const ListingCard = ({ listing, onCardClick, onSave, saved = false }: Lis
             <span className="text-gray-400">No image available</span>
           </div>
         )}
-        <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded-full text-sm font-semibold text-gray-900">
-          {formatPrice(listing.price)}
-        </div>
         <div className="absolute top-3 left-3 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
           Available Now
         </div>
+        {onSave && (
+          <div className="absolute top-3 right-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSaveClick}
+              className="bg-white/80 hover:bg-white p-1 h-8 w-8 rounded-full"
+            >
+              <Heart className={`h-4 w-4 ${saved ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
+            </Button>
+          </div>
+        )}
       </div>
       
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold text-gray-900 truncate">{listing.title}</h3>
-          <div className="flex items-center text-yellow-400">
-            <span className="text-sm">⭐</span>
-            <span className="text-sm text-gray-600 ml-1">4.8</span>
-          </div>
+          <span className="text-xl font-bold text-gray-900">{formatPrice(listing.price)}</span>
         </div>
         
-        <div className="flex items-center text-sm text-gray-600 mb-2">
+        <div className="flex items-center text-sm text-gray-600 mb-3">
           <MapPin className="h-4 w-4 mr-1" />
           <span className="truncate">
             {listing.address} · {listing.distanceToND} miles from campus
-          </span>
-        </div>
-        
-        <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
-          <span>🛏️ {listing.bedrooms}BR</span>
-          <span>🛁 {listing.bathrooms}BA</span>
-          <span>
-            {formatDate(listing.availableFrom)}–{formatDate(listing.availableTo)}
           </span>
         </div>
         
@@ -92,17 +90,6 @@ export const ListingCard = ({ listing, onCardClick, onSave, saved = false }: Lis
           <span className="text-xs text-gray-500">
             Posted {new Date(listing.createdAt).toLocaleDateString()}
           </span>
-          {onSave && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSaveClick}
-              className="text-nd-blue hover:text-nd-blue-light"
-            >
-              <Heart className={`h-4 w-4 mr-1 ${saved ? "fill-current" : ""}`} />
-              Save
-            </Button>
-          )}
         </div>
       </CardContent>
     </Card>

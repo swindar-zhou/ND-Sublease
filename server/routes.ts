@@ -7,9 +7,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API routes for listings
   app.get("/api/listings", async (req, res) => {
     try {
-      const filters = req.query;
-      const validatedFilters = listingFiltersSchema.parse(filters);
-      const listings = await storage.getListings(validatedFilters);
+      const filters: any = {};
+      
+      // Convert query parameters to appropriate types
+      if (req.query.priceMin) filters.priceMin = parseInt(req.query.priceMin as string);
+      if (req.query.priceMax) filters.priceMax = parseInt(req.query.priceMax as string);
+      if (req.query.bedrooms) filters.bedrooms = parseInt(req.query.bedrooms as string);
+      if (req.query.bathrooms) filters.bathrooms = parseFloat(req.query.bathrooms as string);
+      if (req.query.distanceMax) filters.distanceMax = parseFloat(req.query.distanceMax as string);
+      if (req.query.furnished !== undefined) filters.furnished = req.query.furnished === 'true';
+      if (req.query.amenities) {
+        const amenitiesParam = req.query.amenities as string;
+        filters.amenities = Array.isArray(amenitiesParam) ? amenitiesParam : amenitiesParam.split(',');
+      }
+
+      const listings = await storage.getListings(filters);
       res.json(listings);
     } catch (error) {
       console.error(`Error fetching listings: ${error}`);
