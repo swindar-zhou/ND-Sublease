@@ -19,19 +19,25 @@ export const MapView = ({ listings, onMarkerClick, className = "" }: MapViewProp
   const initializeMap = async () => {
     try {
       console.log("Starting Google Maps initialization...");
-      
-      await loadGoogleMaps();
-      console.log("Google Maps API loaded successfully");
+      console.log("Map container available:", !!mapRef.current);
+      console.log("API Key available:", !!import.meta.env.VITE_GOOGLE_MAPS_API_KEY);
       
       if (!mapRef.current) {
         console.error("Map container ref is null");
+        setMapError("Map container not found");
         return;
       }
+
+      await loadGoogleMaps();
+      console.log("Google Maps API loaded successfully");
+      console.log("window.google available:", !!window.google);
+      console.log("window.google.maps available:", !!(window.google && window.google.maps));
 
       console.log("Creating map instance...");
       const map = new window.google.maps.Map(mapRef.current, {
         center: NOTRE_DAME_COORDS,
         zoom: 13,
+        mapTypeId: window.google.maps.MapTypeId.ROADMAP,
         styles: [
           {
             featureType: "poi",
@@ -41,9 +47,22 @@ export const MapView = ({ listings, onMarkerClick, className = "" }: MapViewProp
         ]
       });
 
-      mapInstance.current = map;
-      console.log("Map created successfully");
-      setMapLoaded(true);
+      // Wait for map to be ready
+      window.google.maps.event.addListenerOnce(map, 'idle', () => {
+        console.log("Map is ready and idle");
+        mapInstance.current = map;
+        setMapLoaded(true);
+      });
+
+      // Fallback timeout
+      setTimeout(() => {
+        if (!mapLoaded) {
+          console.log("Map initialization timeout, setting as loaded");
+          mapInstance.current = map;
+          setMapLoaded(true);
+        }
+      }, 3000);
+
     } catch (error) {
       console.error("Failed to load Google Maps:", error);
       setMapError(`Failed to load map: ${error instanceof Error ? error.message : 'Unknown error'}`);
