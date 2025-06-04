@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { FilterSidebar } from "@/components/FilterSidebar";
 import { ListingCard } from "@/components/ListingCard";
 import { ListingModal } from "@/components/ListingModal";
-import { Map as GoogleMap } from "@/components/ui/map";
+import { GoogleMap } from "@/components/GoogleMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
