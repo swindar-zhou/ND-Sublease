@@ -19,10 +19,18 @@ export const MapView = ({ listings, onMarkerClick, className = "" }: MapViewProp
   useEffect(() => {
     const initializeMap = async () => {
       try {
-        await loadGoogleMaps();
+        console.log("Starting Google Maps initialization...");
+        console.log("API Key exists:", !!import.meta.env.VITE_GOOGLE_MAPS_API_KEY);
         
-        if (!mapRef.current) return;
+        await loadGoogleMaps();
+        console.log("Google Maps API loaded successfully");
+        
+        if (!mapRef.current) {
+          console.error("Map container ref is null");
+          return;
+        }
 
+        console.log("Creating map instance...");
         const map = new window.google.maps.Map(mapRef.current, {
           center: NOTRE_DAME_COORDS,
           zoom: 13,
@@ -36,10 +44,11 @@ export const MapView = ({ listings, onMarkerClick, className = "" }: MapViewProp
         });
 
         mapInstance.current = map;
+        console.log("Map created successfully");
         setMapLoaded(true);
       } catch (error) {
         console.error("Failed to load Google Maps:", error);
-        setMapError("Failed to load map. Please check your internet connection.");
+        setMapError(`Failed to load map: ${error.message}`);
       }
     };
 
