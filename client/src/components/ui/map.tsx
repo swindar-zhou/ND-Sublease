@@ -3,8 +3,8 @@ import { NOTRE_DAME_COORDS } from "@shared/schema";
 import type { Listing } from "@shared/schema";
 
 interface MapProps {
-  listings: (Listing & { id: string })[];
-  onMarkerClick?: (listing: Listing & { id: string }) => void;
+  listings: (Listing & { id: number })[];
+  onMarkerClick?: (listing: Listing & { id: number }) => void;
   className?: string;
 }
 

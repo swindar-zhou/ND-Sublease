@@ -264,7 +264,7 @@ export const Home = () => {
             {/* Map View (Desktop) */}
             {viewMode === "map" && (
               <div className="mb-6">
-                <MapView
+                <GoogleMap
                   listings={filteredListings}
                   onMarkerClick={handleListingClick}
                   className="h-80"
