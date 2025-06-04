@@ -4,6 +4,7 @@ declare global {
   interface Window {
     google: any;
     initMap: () => void;
+    initGoogleMaps: () => void;
   }
 }
 
@@ -15,24 +16,51 @@ export interface MapPin {
   title: string;
 }
 
+let mapsPromise: Promise<void> | null = null;
+
 export const loadGoogleMaps = (): Promise<void> => {
-  return new Promise((resolve, reject) => {
+  if (mapsPromise) {
+    return mapsPromise;
+  }
+
+  mapsPromise = new Promise((resolve, reject) => {
     if (window.google && window.google.maps) {
       resolve();
       return;
     }
 
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    
+    if (!apiKey) {
+      reject(new Error("Google Maps API key not found"));
+      return;
+    }
+
     const script = document.createElement("script");
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "default_maps_key";
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     script.async = true;
     script.defer = true;
     
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Failed to load Google Maps"));
+    script.onload = () => {
+      // Wait a bit for the API to be fully available
+      setTimeout(() => {
+        if (window.google && window.google.maps) {
+          resolve();
+        } else {
+          reject(new Error("Google Maps API not available after loading"));
+        }
+      }, 100);
+    };
+    
+    script.onerror = () => {
+      mapsPromise = null;
+      reject(new Error("Failed to load Google Maps"));
+    };
     
     document.head.appendChild(script);
   });
+
+  return mapsPromise;
 };
 
 export const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
