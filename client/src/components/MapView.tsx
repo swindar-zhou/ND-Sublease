@@ -16,43 +16,49 @@ export const MapView = ({ listings, onMarkerClick, className = "" }: MapViewProp
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const initializeMap = async () => {
-      try {
-        console.log("Starting Google Maps initialization...");
-        console.log("API Key exists:", !!import.meta.env.VITE_GOOGLE_MAPS_API_KEY);
-        
-        await loadGoogleMaps();
-        console.log("Google Maps API loaded successfully");
-        
-        if (!mapRef.current) {
-          console.error("Map container ref is null");
-          return;
-        }
-
-        console.log("Creating map instance...");
-        const map = new window.google.maps.Map(mapRef.current, {
-          center: NOTRE_DAME_COORDS,
-          zoom: 13,
-          styles: [
-            {
-              featureType: "poi",
-              elementType: "labels",
-              stylers: [{ visibility: "off" }]
-            }
-          ]
-        });
-
-        mapInstance.current = map;
-        console.log("Map created successfully");
-        setMapLoaded(true);
-      } catch (error) {
-        console.error("Failed to load Google Maps:", error);
-        setMapError(`Failed to load map: ${error.message}`);
+  const initializeMap = async () => {
+    try {
+      console.log("Starting Google Maps initialization...");
+      
+      await loadGoogleMaps();
+      console.log("Google Maps API loaded successfully");
+      
+      if (!mapRef.current) {
+        console.error("Map container ref is null");
+        return;
       }
-    };
 
-    initializeMap();
+      console.log("Creating map instance...");
+      const map = new window.google.maps.Map(mapRef.current, {
+        center: NOTRE_DAME_COORDS,
+        zoom: 13,
+        styles: [
+          {
+            featureType: "poi",
+            elementType: "labels",
+            stylers: [{ visibility: "off" }]
+          }
+        ]
+      });
+
+      mapInstance.current = map;
+      console.log("Map created successfully");
+      setMapLoaded(true);
+    } catch (error) {
+      console.error("Failed to load Google Maps:", error);
+      setMapError(`Failed to load map: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  // Initialize map after component mounts and ref is available
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (mapRef.current && !mapLoaded && !mapError) {
+        initializeMap();
+      }
+    }, 500); // Give more time for DOM to be ready
+
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
