@@ -14,7 +14,7 @@ export const MyListings = () => {
   const { toast } = useToast();
   const [selectedListing, setSelectedListing] = useState<(Listing & { id: number }) | null>(null);
 
-  const { data: listings = [], isLoading } = useQuery({
+  const { data: listings = [], isLoading } = useQuery<(Listing & { id: number })[]>({
     queryKey: ["/api/my-listings"],
     enabled: !!user,
   });
@@ -104,7 +104,7 @@ export const MyListings = () => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {listings.map((listing: Listing & { id: number }) => (
+        {listings.map((listing) => (
           <Card key={listing.id} className="overflow-hidden">
             <div className="relative">
               <img

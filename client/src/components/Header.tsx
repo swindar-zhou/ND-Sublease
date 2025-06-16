@@ -42,14 +42,17 @@ export const Header = () => {
             
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-gray-900 hover:text-nd-blue font-medium">Browse</a>
+              <a href="/" className="text-gray-900 hover:text-nd-blue font-medium">Browse</a>
               {isAuthenticated && isNDStudent && (
-                <button 
-                  onClick={() => setCreateListingOpen(true)}
-                  className="text-gray-500 hover:text-nd-blue"
-                >
-                  Post Listing
-                </button>
+                <>
+                  <a href="/my-listings" className="text-gray-500 hover:text-nd-blue">My Listings</a>
+                  <button 
+                    onClick={() => setCreateListingOpen(true)}
+                    className="text-gray-500 hover:text-nd-blue"
+                  >
+                    Post Listing
+                  </button>
+                </>
               )}
               <a href="#" className="text-gray-500 hover:text-nd-blue">Help</a>
             </nav>
