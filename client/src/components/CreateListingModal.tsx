@@ -70,6 +70,27 @@ export const CreateListingModal = ({ open, onOpenChange }: CreateListingModalPro
     setLoading(true);
 
     try {
+      let imageUrls: string[] = [];
+
+      // Upload images if any are selected
+      if (images.length > 0) {
+        const formData = new FormData();
+        images.forEach((image) => {
+          formData.append('images', image);
+        });
+
+        const uploadResponse = await apiRequest("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadData = await uploadResponse.json();
+        imageUrls = uploadData.urls;
+      } else {
+        // Use default image if no images uploaded
+        imageUrls = ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center"];
+      }
+
       // Prepare listing data with proper types (userId is added by backend)
       const listingData = {
         ...formData,
@@ -78,7 +99,7 @@ export const CreateListingModal = ({ open, onOpenChange }: CreateListingModalPro
         latitude: 41.7020,
         longitude: -86.2379,
         distanceToND: 1.0,
-        images: ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center"], // Default image
+        images: imageUrls,
         isAvailable: true,
       };
 

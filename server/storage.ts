@@ -135,16 +135,44 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createListing(insertListing: InsertListing): Promise<Listing & { id: number }> {
-    const result = await db.insert(listings).values(insertListing).returning();
+    // Convert numeric fields to strings to match database schema
+    const processedListing = {
+      ...insertListing,
+      bathrooms: insertListing.bathrooms.toString(),
+      latitude: insertListing.latitude.toString(),
+      longitude: insertListing.longitude.toString(),
+      distanceToND: insertListing.distanceToND.toString()
+    };
+    
+    const result = await db.insert(listings).values(processedListing).returning();
     return { ...result[0], id: result[0].id };
   }
 
   async updateListing(id: number, updates: Partial<InsertListing>): Promise<void> {
-    await db.update(listings).set({ ...updates, updatedAt: new Date() }).where(eq(listings.id, id));
+    // Convert all possible numeric fields to strings for database compatibility
+    const processedUpdates: Record<string, any> = { updatedAt: new Date() };
+    
+    Object.keys(updates).forEach(key => {
+      const value = (updates as any)[key];
+      if (value !== undefined) {
+        if (key === 'bathrooms' || key === 'latitude' || key === 'longitude' || key === 'distanceToND') {
+          processedUpdates[key] = value.toString();
+        } else {
+          processedUpdates[key] = value;
+        }
+      }
+    });
+    
+    await db.update(listings).set(processedUpdates).where(eq(listings.id, id));
   }
 
   async deleteListing(id: number): Promise<void> {
     await db.delete(listings).where(eq(listings.id, id));
+  }
+
+  async getUserListings(userId: number): Promise<(Listing & { id: number })[]> {
+    const result = await db.select().from(listings).where(eq(listings.userId, userId)).orderBy(desc(listings.createdAt));
+    return result.map(listing => ({ ...listing, id: listing.id }));
   }
 
   // Favorites methods
