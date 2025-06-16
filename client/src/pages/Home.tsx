@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { FilterSidebar } from "@/components/FilterSidebar";
 import { ListingCard } from "@/components/ListingCard";
 import { ListingModal } from "@/components/ListingModal";
-import { GoogleMap } from "@/components/GoogleMap";
+// Removed Google Maps component
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -241,36 +241,18 @@ export const Home = () => {
                   
                   <div className="flex border border-gray-300 rounded-lg">
                     <Button
-                      variant={viewMode === "grid" ? "default" : "ghost"}
+                      variant="default"
                       size="sm"
-                      onClick={() => setViewMode("grid")}
-                      className={viewMode === "grid" ? "bg-nd-blue text-white" : ""}
+                      className="bg-nd-blue text-white"
                     >
                       <Grid className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant={viewMode === "map" ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => setViewMode("map")}
-                      className={viewMode === "map" ? "bg-nd-blue text-white" : ""}
-                    >
-                      <Map className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Map View (Desktop) */}
-            {viewMode === "map" && (
-              <div className="mb-6">
-                <GoogleMap
-                  listings={filteredListings}
-                  onMarkerClick={handleListingClick}
-                  className="h-80"
-                />
-              </div>
-            )}
+            {/* Map functionality removed */}
 
             {/* Listings Grid */}
             {isLoading ? (

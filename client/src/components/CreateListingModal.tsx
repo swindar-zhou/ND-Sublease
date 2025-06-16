@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { createListing } from "@/lib/firestore";
 import { uploadListingImages } from "@/lib/storage";
-import { geocodeAddress, calculateDistanceToND } from "@/lib/maps";
+// Removed Google Maps dependencies
 import { insertListingSchema, AMENITIES } from "@shared/schema";
 import type { InsertListing } from "@shared/schema";
 import { Upload, X } from "lucide-react";
@@ -71,19 +71,20 @@ export const CreateListingModal = ({ open, onOpenChange }: CreateListingModalPro
     setLoading(true);
 
     try {
-      // Geocode the address
-      const coordinates = await geocodeAddress(formData.address);
-      const distanceToND = calculateDistanceToND(coordinates.lat, coordinates.lng);
-
       // Upload images
       const imageUrls = await uploadListingImages(images);
+
+      // Use default coordinates for Notre Dame area (no geocoding needed)
+      const defaultLat = 41.7020;
+      const defaultLng = -86.2379;
+      const defaultDistance = 1.0;
 
       // Prepare listing data
       const listingData: InsertListing = {
         ...formData,
-        latitude: coordinates.lat,
-        longitude: coordinates.lng,
-        distanceToND,
+        latitude: defaultLat,
+        longitude: defaultLng,
+        distanceToND: defaultDistance,
         images: imageUrls,
         isAvailable: true,
       };
