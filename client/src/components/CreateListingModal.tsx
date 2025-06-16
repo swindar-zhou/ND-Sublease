@@ -70,18 +70,15 @@ export const CreateListingModal = ({ open, onOpenChange }: CreateListingModalPro
     setLoading(true);
 
     try {
-      // Use default coordinates for Notre Dame area
-      const defaultLat = "41.7020";
-      const defaultLng = "-86.2379";
-      const defaultDistance = "1.0";
-
-      // Prepare listing data
+      // Prepare listing data with proper types
       const listingData: InsertListing = {
         ...formData,
-        latitude: defaultLat,
-        longitude: defaultLng,
-        distanceToND: defaultDistance,
-        images: [], // No image upload for now
+        price: formData.price,
+        bathrooms: parseFloat(formData.bathrooms.toString()),
+        latitude: 41.7020,
+        longitude: -86.2379,
+        distanceToND: 1.0,
+        images: ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center"], // Default image
         isAvailable: true,
       };
 

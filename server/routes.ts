@@ -122,19 +122,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     if (token == null) return res.sendStatus(401);
 
-    jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-      if (err) return res.sendStatus(403);
-      req.user = user;
+    jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
+      if (err) {
+        console.error('JWT verification error:', err);
+        return res.sendStatus(403);
+      }
+      console.log('Decoded JWT:', decoded);
+      req.user = { userId: decoded.userId };
       next();
     });
   };
 
   app.post("/api/listings", authenticateToken, async (req: any, res) => {
     try {
+      console.log("User from JWT:", req.user);
+      console.log("Request body:", req.body);
+      
       const validatedData = insertListingSchema.parse({
         ...req.body,
         userId: req.user.userId
       });
+      
+      console.log("Validated data:", validatedData);
       const listing = await storage.createListing(validatedData);
       res.status(201).json(listing);
     } catch (error) {
