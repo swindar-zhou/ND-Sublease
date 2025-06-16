@@ -10,9 +10,10 @@ interface ListingCardProps {
   onSave?: (listingId: string) => void;
   onMessage?: (listing: Listing & { id: string }) => void;
   saved?: boolean;
+  isOwnListing?: boolean;
 }
 
-export const ListingCard = ({ listing, onCardClick, onSave, saved = false }: ListingCardProps) => {
+export const ListingCard = ({ listing, onCardClick, onSave, saved = false, isOwnListing = false }: ListingCardProps) => {
   const formatPrice = (price: string) => {
     return `$${parseFloat(price).toLocaleString()}/mo`;
   };
@@ -29,7 +30,9 @@ export const ListingCard = ({ listing, onCardClick, onSave, saved = false }: Lis
 
   return (
     <Card 
-      className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+      className={`overflow-hidden hover:shadow-md transition-shadow cursor-pointer ${
+        isOwnListing ? "ring-2 ring-blue-500 bg-blue-50" : ""
+      }`}
       onClick={() => onCardClick(listing)}
     >
       <div className="relative">
@@ -44,9 +47,15 @@ export const ListingCard = ({ listing, onCardClick, onSave, saved = false }: Lis
             <span className="text-gray-400">No image available</span>
           </div>
         )}
-        <div className="absolute top-3 left-3 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-          Available Now
-        </div>
+        {isOwnListing ? (
+          <div className="absolute top-3 left-3 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+            Your Listing
+          </div>
+        ) : (
+          <div className="absolute top-3 left-3 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+            Available Now
+          </div>
+        )}
         {onSave && (
           <div className="absolute top-3 right-3">
             <Button

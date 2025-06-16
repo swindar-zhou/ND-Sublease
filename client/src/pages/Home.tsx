@@ -82,14 +82,9 @@ export const Home = () => {
     }
   }, [favorites]);
 
-  // Filter and sort listings
+  // Filter and sort listings (now includes user's own listings)
   const filteredListings = listings
     .filter(listing => {
-      // Filter out current user's own listings
-      if (user && listing.userId === user.id) {
-        return false;
-      }
-      
       if (!searchQuery) return true;
       const query = searchQuery.toLowerCase();
       return (
@@ -303,6 +298,7 @@ export const Home = () => {
                     onCardClick={(l) => handleListingClick({...l, id: listing.id})}
                     onSave={handleSaveListing}
                     saved={savedListings.has(listing.id.toString())}
+                    isOwnListing={user?.id === listing.userId}
                   />
                 ))}
               </div>
