@@ -300,8 +300,9 @@ export const Home = () => {
                   <ListingCard
                     key={listing.id}
                     listing={{...listing, id: listing.id.toString()}}
-                    onCardClick={handleListingClick}
+                    onCardClick={(l) => handleListingClick({...l, id: listing.id})}
                     onSave={handleSaveListing}
+                    saved={savedListings.has(listing.id.toString())}
                   />
                 ))}
               </div>
@@ -334,7 +335,7 @@ export const Home = () => {
 
       {/* Listing Detail Modal */}
       <ListingModal
-        listing={selectedListing}
+        listing={selectedListing ? {...selectedListing, id: selectedListing.id.toString()} : null}
         open={!!selectedListing}
         onOpenChange={(open) => !open && setSelectedListing(null)}
       />

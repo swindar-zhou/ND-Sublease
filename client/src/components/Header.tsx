@@ -43,6 +43,9 @@ export const Header = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8">
               <a href="/" className="text-gray-900 hover:text-nd-blue font-medium">Browse</a>
+              {isAuthenticated && (
+                <a href="/favorites" className="text-gray-500 hover:text-nd-blue">Favorites</a>
+              )}
               {isAuthenticated && isNDStudent && (
                 <>
                   <a href="/my-listings" className="text-gray-500 hover:text-nd-blue">My Listings</a>
