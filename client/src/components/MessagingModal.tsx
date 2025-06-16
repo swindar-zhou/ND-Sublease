@@ -21,14 +21,14 @@ interface MessagingModalProps {
 
 interface ConversationWithDetails extends Conversation {
   id: number;
-  otherUser: User;
+  otherUser: UserType;
   listing?: any;
   lastMessage?: Message;
 }
 
 interface MessageWithSender extends Message {
   id: number;
-  sender: User;
+  sender: UserType;
 }
 
 export const MessagingModal = ({
@@ -61,7 +61,7 @@ export const MessagingModal = ({
       });
       return response;
     },
-    onSuccess: (conversation) => {
+    onSuccess: (conversation: ConversationWithDetails) => {
       queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
       setSelectedConversation(conversation);
       toast({

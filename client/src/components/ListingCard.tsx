@@ -13,7 +13,7 @@ interface ListingCardProps {
   isOwnListing?: boolean;
 }
 
-export const ListingCard = ({ listing, onCardClick, onSave, saved = false, isOwnListing = false }: ListingCardProps) => {
+export const ListingCard = ({ listing, onCardClick, onSave, onMessage, saved = false, isOwnListing = false }: ListingCardProps) => {
   const formatPrice = (price: string) => {
     return `$${parseFloat(price).toLocaleString()}/mo`;
   };

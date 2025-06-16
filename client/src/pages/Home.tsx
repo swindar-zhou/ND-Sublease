@@ -170,6 +170,21 @@ export const Home = () => {
     }
   };
 
+  const handleMessage = (listing: Listing & { id: string }) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to message the listing owner.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setMessagingListingId(parseInt(listing.id));
+    setMessagingOwnerId(listing.userId);
+    setMessagingOpen(true);
+  };
+
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -301,6 +316,7 @@ export const Home = () => {
                     listing={{...listing, id: listing.id.toString()}}
                     onCardClick={(l) => handleListingClick({...l, id: listing.id})}
                     onSave={handleSaveListing}
+                    onMessage={handleMessage}
                     saved={savedListings.has(listing.id.toString())}
                     isOwnListing={user?.id === listing.userId}
                   />
@@ -338,6 +354,14 @@ export const Home = () => {
         listing={selectedListing ? {...selectedListing, id: selectedListing.id.toString()} : null}
         open={!!selectedListing}
         onOpenChange={(open) => !open && setSelectedListing(null)}
+      />
+
+      {/* Messaging Modal */}
+      <MessagingModal
+        open={messagingOpen}
+        onOpenChange={setMessagingOpen}
+        listingId={messagingListingId}
+        listingOwnerId={messagingOwnerId}
       />
     </div>
   );
