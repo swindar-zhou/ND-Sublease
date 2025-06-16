@@ -138,10 +138,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("User from JWT:", req.user);
       console.log("Request body:", req.body);
       
-      const validatedData = insertListingSchema.parse({
-        ...req.body,
+      const validatedData = {
+        ...insertListingSchema.parse(req.body),
         userId: req.user.userId
-      });
+      };
       
       console.log("Validated data:", validatedData);
       const listing = await storage.createListing(validatedData);
