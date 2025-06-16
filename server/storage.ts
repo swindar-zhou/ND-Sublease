@@ -27,6 +27,7 @@ export interface IStorage {
   createListing(listing: InsertListing): Promise<Listing & { id: number }>;
   updateListing(id: number, updates: Partial<InsertListing>): Promise<void>;
   deleteListing(id: number): Promise<void>;
+  getUserListings(userId: number): Promise<(Listing & { id: number })[]>;
   
   // Favorites methods
   addFavorite(userId: number, listingId: number): Promise<void>;

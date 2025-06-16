@@ -1,13 +1,60 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertListingSchema, listingFiltersSchema, insertUserSchema } from "@shared/schema";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
+// Configure multer for image uploads
+const uploadDir = 'uploads';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: uploadDir,
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded images
+  app.use('/uploads', (req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    next();
+  });
+  app.use('/uploads', express.static(uploadDir));
+
+  // Image upload endpoint
+  app.post("/api/upload", upload.array('images', 8), (req: any, res) => {
+    try {
+      const files = req.files as Express.Multer.File[];
+      const imageUrls = files.map(file => `/uploads/${file.filename}`);
+      res.json({ urls: imageUrls });
+    } catch (error) {
+      console.error('Image upload error:', error);
+      res.status(500).json({ error: 'Failed to upload images' });
+    }
+  });
+
   // Authentication routes
   app.post("/api/auth/signup", async (req, res) => {
     try {
@@ -146,6 +193,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error(`Error creating listing: ${error}`);
       res.status(500).json({ error: "Failed to create listing" });
+    }
+  });
+
+  // Get user's own listings
+  app.get("/api/my-listings", authenticateToken, async (req: any, res) => {
+    try {
+      const listings = await storage.getUserListings(req.user.userId);
+      res.json(listings);
+    } catch (error) {
+      console.error(`Error fetching user listings: ${error}`);
+      res.status(500).json({ error: "Failed to fetch listings" });
     }
   });
 
