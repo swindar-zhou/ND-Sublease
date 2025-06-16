@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -74,34 +75,42 @@ export const MyListings = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your listings...</p>
+      <>
+        <Header />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your listings...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (listings.length === 0) {
     return (
-      <div className="text-center py-12">
-        <Home className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">No listings yet</h2>
-        <p className="text-gray-600 mb-6">You haven't created any listings. Start by posting your first property!</p>
-        <Button onClick={() => window.location.href = "/"}>
-          Create Your First Listing
-        </Button>
-      </div>
+      <>
+        <Header />
+        <div className="text-center py-12">
+          <Home className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">No listings yet</h2>
+          <p className="text-gray-600 mb-6">You haven't created any listings. Start by posting your first property!</p>
+          <Button onClick={() => window.location.href = "/"}>
+            Create Your First Listing
+          </Button>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Listings</h1>
-        <p className="text-gray-600">Manage your posted properties</p>
-      </div>
+    <>
+      <Header />
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Listings</h1>
+          <p className="text-gray-600">Manage your posted properties</p>
+        </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {listings.map((listing) => (
@@ -185,6 +194,7 @@ export const MyListings = () => {
           </Card>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
