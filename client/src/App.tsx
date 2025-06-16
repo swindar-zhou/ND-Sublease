@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { Home } from "@/pages/Home";
 import { MyListings } from "@/pages/MyListings";
 import { Favorites } from "@/pages/Favorites";
+import { Inbox } from "@/pages/Inbox";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/my-listings" component={MyListings} />
       <Route path="/favorites" component={Favorites} />
+      <Route path="/inbox" component={Inbox} />
       <Route component={NotFound} />
     </Switch>
   );

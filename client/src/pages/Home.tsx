@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { FilterSidebar } from "@/components/FilterSidebar";
 import { ListingCard } from "@/components/ListingCard";
 import { ListingModal } from "@/components/ListingModal";
+import { MessagingModal } from "@/components/MessagingModal";
 // Removed Google Maps component
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,9 @@ export const Home = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [selectedListing, setSelectedListing] = useState<(Listing & { id: number }) | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
+  const [messagingOpen, setMessagingOpen] = useState(false);
+  const [messagingListingId, setMessagingListingId] = useState<number | undefined>();
+  const [messagingOwnerId, setMessagingOwnerId] = useState<number | undefined>();
   const { toast } = useToast();
 
   // Build query string from filters

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Heart } from "lucide-react";
+import { MapPin, Heart, MessageCircle } from "lucide-react";
 import type { Listing } from "@shared/schema";
 
 interface ListingCardProps {
@@ -26,6 +26,11 @@ export const ListingCard = ({ listing, onCardClick, onSave, saved = false, isOwn
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onSave?.(listing.id);
+  };
+
+  const handleMessageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onMessage?.(listing);
   };
 
   return (
@@ -100,6 +105,32 @@ export const ListingCard = ({ listing, onCardClick, onSave, saved = false, isOwn
           <span className="text-xs text-gray-500">
             Posted {new Date(listing.createdAt).toLocaleDateString()}
           </span>
+          
+          {/* Action buttons */}
+          <div className="flex items-center space-x-2">
+            {!isOwnListing && onMessage && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleMessageClick}
+                className="h-8 px-3 text-xs"
+              >
+                <MessageCircle className="h-3 w-3 mr-1" />
+                Contact
+              </Button>
+            )}
+            
+            {onSave && !isOwnListing && (
+              <Button
+                size="sm"
+                variant={saved ? "default" : "outline"}
+                onClick={handleSaveClick}
+                className="h-8 px-3"
+              >
+                <Heart className={`h-3 w-3 ${saved ? "fill-current" : ""}`} />
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
