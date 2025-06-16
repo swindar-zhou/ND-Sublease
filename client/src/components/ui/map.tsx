@@ -15,7 +15,7 @@ const Map = ({ properties, onPropertySelect }: MapProps) => {
   const [mapLoaded, setMapLoaded] = useState(false);
 
   // Your Google Maps API key
-  const apiKey = 'AIzaSyCFpRyR3Snv5eQzvoNmFEhTqIlev58ahc0';
+  const apiKey = 'AIzaSyAr8NNoPFn2J0TQCYJfFjj3SQw9w7q03xI';
 
   // Initialize Google Maps
   useEffect(() => {
