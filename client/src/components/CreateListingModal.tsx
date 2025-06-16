@@ -7,8 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { createListing } from "@/lib/firestore";
-import { uploadListingImages } from "@/lib/storage";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 // Removed Google Maps dependencies
 import { insertListingSchema, AMENITIES } from "@shared/schema";
 import type { InsertListing } from "@shared/schema";
@@ -71,13 +70,10 @@ export const CreateListingModal = ({ open, onOpenChange }: CreateListingModalPro
     setLoading(true);
 
     try {
-      // Upload images
-      const imageUrls = await uploadListingImages(images);
-
-      // Use default coordinates for Notre Dame area (no geocoding needed)
-      const defaultLat = 41.7020;
-      const defaultLng = -86.2379;
-      const defaultDistance = 1.0;
+      // Use default coordinates for Notre Dame area
+      const defaultLat = "41.7020";
+      const defaultLng = "-86.2379";
+      const defaultDistance = "1.0";
 
       // Prepare listing data
       const listingData: InsertListing = {
@@ -85,15 +81,18 @@ export const CreateListingModal = ({ open, onOpenChange }: CreateListingModalPro
         latitude: defaultLat,
         longitude: defaultLng,
         distanceToND: defaultDistance,
-        images: imageUrls,
+        images: [], // No image upload for now
         isAvailable: true,
       };
 
-      // Validate the data
-      const validatedData = insertListingSchema.parse(listingData);
+      // Create the listing via API
+      const response = await apiRequest("/api/listings", {
+        method: "POST",
+        body: JSON.stringify(listingData),
+      });
 
-      // Create the listing
-      await createListing(validatedData, user.uid);
+      // Refresh the listings cache
+      queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
 
       toast({
         title: "Listing created!",
