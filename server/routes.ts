@@ -135,17 +135,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/listings", authenticateToken, async (req: any, res) => {
     try {
-      console.log("User from JWT:", req.user);
-      console.log("Request body:", req.body);
-      
       // Add userId to the request data for direct database insertion
       const validatedData = {
         ...req.body,
         userId: req.user.userId
       };
       
-      console.log("Validated data:", validatedData);
-      console.log("About to call storage.createListing with:", JSON.stringify(validatedData, null, 2));
       const listing = await storage.createListing(validatedData as any);
       res.status(201).json(listing);
     } catch (error) {

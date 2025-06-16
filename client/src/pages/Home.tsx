@@ -294,7 +294,7 @@ export const Home = () => {
                 {filteredListings.map((listing) => (
                   <ListingCard
                     key={listing.id}
-                    listing={listing}
+                    listing={{...listing, id: listing.id.toString()}}
                     onCardClick={handleListingClick}
                     onSave={handleSaveListing}
                   />

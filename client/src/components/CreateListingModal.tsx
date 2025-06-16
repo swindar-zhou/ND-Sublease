@@ -70,8 +70,8 @@ export const CreateListingModal = ({ open, onOpenChange }: CreateListingModalPro
     setLoading(true);
 
     try {
-      // Prepare listing data with proper types
-      const listingData: InsertListing = {
+      // Prepare listing data with proper types (userId is added by backend)
+      const listingData = {
         ...formData,
         price: formData.price,
         bathrooms: parseFloat(formData.bathrooms.toString()),
