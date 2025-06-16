@@ -15,7 +15,7 @@ import { Search, Plus, Grid, Map } from "lucide-react";
 import type { Listing, ListingFilters } from "@shared/schema";
 
 export const Home = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [filters, setFilters] = useState<ListingFilters>({
     amenities: [],
   });
@@ -85,6 +85,11 @@ export const Home = () => {
   // Filter and sort listings
   const filteredListings = listings
     .filter(listing => {
+      // Filter out current user's own listings
+      if (user && listing.userId === user.id) {
+        return false;
+      }
+      
       if (!searchQuery) return true;
       const query = searchQuery.toLowerCase();
       return (
