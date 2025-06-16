@@ -32,6 +32,14 @@ export async function apiRequest(
     credentials: "include",
   });
 
+  // Handle expired/invalid tokens
+  if (res.status === 401 || res.status === 403) {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("current_user");
+    window.location.reload();
+    throw new Error("Authentication expired");
+  }
+
   await throwIfResNotOk(res);
   return res;
 }
@@ -42,11 +50,32 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    const token = localStorage.getItem("auth_token");
+    
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
     const res = await fetch(queryKey[0] as string, {
+      headers,
       credentials: "include",
     });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+    if (res.status === 401 || res.status === 403) {
+      // Token expired or invalid - clear auth data
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("current_user");
+      
+      if (unauthorizedBehavior === "returnNull") {
+        return null;
+      }
+      
+      // Redirect to force re-authentication
+      window.location.reload();
       return null;
     }
 

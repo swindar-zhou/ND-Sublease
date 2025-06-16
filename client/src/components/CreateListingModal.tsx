@@ -111,6 +111,7 @@ export const CreateListingModal = ({ open, onOpenChange }: CreateListingModalPro
 
       // Refresh the listings cache
       queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/my-listings"] });
 
       toast({
         title: "Listing created!",
